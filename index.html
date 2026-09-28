@@ -158,6 +158,9 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetUrlParam = urlParams.get('url');
+                // GAS 側で発行したセッショントークン。wisp 接続時に Render がこれを
+                // GAS に問い合わせて検証するため、必ず一緒に渡す。
+                const authToken = urlParams.get('t') || '';
 
                 if (!targetUrlParam) {
                     return;
@@ -175,7 +178,7 @@
                 const serviceworker = navigator.serviceWorker.controller || registration.active;
 
                 const transport = new EpoxyTransport({
-                    wisp: "wss://scramjet-server.onrender.com/wisp/"
+                    wisp: "wss://scramjet-server.onrender.com/wisp/?t=" + encodeURIComponent(authToken)
                 });
 
                 await transport.init();
