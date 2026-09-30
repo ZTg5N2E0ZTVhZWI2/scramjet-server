@@ -18,12 +18,15 @@ app.use(express.static("./"));
 
 const httpServer = createServer(app);
 
-// /wisp/ への WebSocket 接続をそのまま wisp サーバーに渡す
+// /wisp/ への WebSocket 接続を wisp サーバーに渡す。
+// wisp-js は URL が「/」で終わらないと、? 以降を接続先ホスト名（wsproxy 形式）と解釈して
+// 接続を閉じてしまう。index.html が付ける ?t=... があってもこうならないよう、パスを正規化する。
 httpServer.on("upgrade", (req, socket, head) => {
     if (!req.url.startsWith("/wisp/")) {
         socket.destroy();
         return;
     }
+    req.url = "/wisp/";
     wisp.routeRequest(req, socket, head);
 });
 
